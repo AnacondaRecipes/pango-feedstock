@@ -8,10 +8,11 @@ if [ $(uname) == Darwin ] ; then
 fi
 
 ./configure --prefix=$PREFIX \
+            --host=${HOST} \
             --with-xft \
             --with-cairo=$PREFIX
 
-make
+make -j${CPU_COUNT} V=1
 # # FIXME: There is one failure:
 # ========================================
 #    pango 1.40.1: tests/test-suite.log
