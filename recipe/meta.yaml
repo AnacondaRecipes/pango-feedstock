@@ -17,6 +17,7 @@ build:
 
 requirements:
   build:
+    - {{ compiler('c') }}
     - perl 5.*
     - pkg-config
     - harfbuzz 1.7.*
