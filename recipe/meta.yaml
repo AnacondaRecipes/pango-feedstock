@@ -19,6 +19,9 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
+    - python >=2.7,<3  # [not win]
+  host:
+    - libpng
     - perl 5.*
     - pkg-config
     - harfbuzz 1.4.*
@@ -27,13 +30,10 @@ requirements:
     - fontconfig 2.12.*
     - freetype 2.7|2.7.*
     - gobject-introspection  # [not win]
-    - python >=2.7,<3  # [not win]
-    - libpng >=1.6.28,<1.7
   run:
     - harfbuzz 1.4.*
     - fontconfig 2.12.*
     - freetype 2.7|2.7.*
-    - libpng >=1.6.28,<1.7
 
 test:
   commands:
