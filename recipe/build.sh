@@ -12,7 +12,7 @@ fi
             --with-xft \
             --with-cairo=$PREFIX
 
-make -j${CPU_COUNT} V=1
+make -j${CPU_COUNT} ${VERBOSE_AT}
 # # FIXME: There is one failure:
 # ========================================
 #    pango 1.40.1: tests/test-suite.log
