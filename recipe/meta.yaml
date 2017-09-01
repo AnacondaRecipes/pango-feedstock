@@ -25,7 +25,6 @@ requirements:
     - libpng
     - perl 5.*
     - pkg-config
-    - gobject-introspection  # [not win]
     - harfbuzz
     - gobject-introspection  # [not win]
 
