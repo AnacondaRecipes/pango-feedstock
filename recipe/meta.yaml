@@ -1,5 +1,5 @@
 {% set major = "1.40" %}
-{% set patch = "4" %}
+{% set patch = "11" %}
 {% set version = major + "." + patch %}
 
 package:
@@ -9,7 +9,7 @@ package:
 source:
   url: http://ftp.gnome.org/pub/GNOME/sources/pango/{{ major }}/pango-{{ version }}.tar.xz
   fn: pango-{{ version }}.tar.xz
-  sha256: f8fdc5fc66356dc4edf915048cceeee065a0e0cb70b3b2598f62bda320129a3e
+  sha256: 5b11140590e632739e4151cae06b8116160d59e22bf36a3ccd5df76d1cf0383e
 
 build:
   number: 0
@@ -26,10 +26,8 @@ requirements:
     - libpng
     - perl 5.*
     - pkg-config
-    - harfbuzz 1.4.*
+    - harfbuzz
     - gobject-introspection  # [not win]
-  run:
-    - harfbuzz 1.4.*
 
 test:
   commands:
