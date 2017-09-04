@@ -18,7 +18,10 @@ build:
 requirements:
   build:
     - {{ compiler('c') }}
-    - python >=2.7,<3  # [not win]
+    - {{ cdt('libxau-devel') }}          # [linux]
+    - {{ cdt('libxext-devel') }}         # [linux]
+    - {{ cdt('libx11-devel') }}          # [linux]
+    - {{ cdt('libxrender-devel') }}      # [linux]
   host:
     - fontconfig
     - freetype
