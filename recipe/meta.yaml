@@ -1,4 +1,4 @@
-{% set major = "1.41" %}
+{% set major = "1.42" %}
 {% set patch = "0" %}
 {% set version = major + "." + patch %}
 
@@ -8,7 +8,7 @@ package:
 
 source:
   url: http://ftp.gnome.org/pub/GNOME/sources/pango/{{ major }}/pango-{{ version }}.tar.xz
-  sha256: 1f76ef95953dc58ee5d6a53e5f1cb6db913f3e0eb489713ee9266695cae580ba
+  sha256: 9924d88a3dcedff753f0763814a1605307c5c9c931413b8b47ea7267d1b19446
 
 build:
   number: 0
@@ -24,14 +24,18 @@ requirements:
     - {{ cdt('libxext-devel') }}         # [linux]
     - {{ cdt('libx11-devel') }}          # [linux]
     - {{ cdt('libxrender-devel') }}      # [linux]
+    - make                               # [unix]
   host:
+    - cairo
     - fontconfig
     - freetype
+    - fribidi
+    - glib
+    - gobject-introspection  # [not win]
+    - harfbuzz
     - libpng
     - perl 5.*
     - pkg-config
-    - harfbuzz
-    - gobject-introspection  # [not win]
 
 test:
   commands:
