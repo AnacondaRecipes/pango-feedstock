@@ -1,16 +1,15 @@
 #!/bin/bash
 
-export LDFLAGS="${LDFLAGS} -L${PREFIX}/lib"
-export CPPFLAGS="${CPPFLAGS} -I${PREFIX}/include"
+# We must avoid very long shebangs here.
+echo '#!/usr/bin/env bash' > g-ir-scanner
+echo "${PYTHON} ${PREFIX}/bin/g-ir-scanner \$*" >> g-ir-scanner
+chmod +x ./g-ir-scanner
+export PATH=${PWD}:${PATH}
 
-if [ $(uname) == Darwin ] ; then
-    export LDFLAGS="${LDFLAGS} -Wl,-rpath,${PREFIX}/lib"
-fi
-
-./configure --prefix=$PREFIX \
+./configure --prefix="${PREFIX}" \
             --host=${HOST} \
             --with-xft \
-            --with-cairo=$PREFIX
+            --with-cairo="${PREFIX}"
 
 make -j${CPU_COUNT} ${VERBOSE_AT}
 # # FIXME: There is one failure:
