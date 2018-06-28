@@ -11,7 +11,7 @@ source:
   sha256: 915a6756b298578ff27c7a6393f8c2e62e6e382f9411f2504d7af1a13c7bce32
 
 build:
-  number: 0
+  number: 1
   skip: true  # [win]
   run_exports:
     # excellent: https://abi-laboratory.pro/tracker/timeline/pango/

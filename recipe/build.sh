@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [[ ${target_platform} == osx-64 ]]; then
+  rm -rf ${PREFIX}/lib/libuuid*.a ${PREFIX}/lib/libuuid*.la
+fi
+
 # We must avoid very long shebangs here.
 echo '#!/usr/bin/env bash' > g-ir-scanner
 echo "${PYTHON} ${PREFIX}/bin/g-ir-scanner \$*" >> g-ir-scanner
