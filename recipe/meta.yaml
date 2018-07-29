@@ -1,5 +1,5 @@
 {% set major = "1.42" %}
-{% set patch = "1" %}
+{% set patch = "2" %}
 {% set version = major + "." + patch %}
 
 package:
@@ -8,10 +8,10 @@ package:
 
 source:
   url: http://ftp.gnome.org/pub/GNOME/sources/pango/{{ major }}/pango-{{ version }}.tar.xz
-  sha256: 915a6756b298578ff27c7a6393f8c2e62e6e382f9411f2504d7af1a13c7bce32
+  sha256: b1e416b4d40416ef6c8224cf146492b86848703264ba88f792290992cf3ca1e2
 
 build:
-  number: 2
+  number: 0
   skip: true  # [win]
   run_exports:
     # excellent: https://abi-laboratory.pro/tracker/timeline/pango/
