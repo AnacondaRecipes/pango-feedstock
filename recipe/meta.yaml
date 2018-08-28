@@ -1,5 +1,5 @@
 {% set major = "1.42" %}
-{% set patch = "3" %}
+{% set patch = "4" %}
 {% set version = major + "." + patch %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: http://ftp.gnome.org/pub/GNOME/sources/pango/{{ major }}/pango-{{ version }}.tar.xz
-  sha256: fb3d875305d5143f02cde5c72fec3903e60dc35844759dc14b2df4955b5dde3a
+  sha256: 1d2b74cd63e8bd41961f2f8d952355aa0f9be6002b52c8aa7699d9f5da597c9d
 
 build:
   number: 0
@@ -23,6 +23,7 @@ requirements:
     - {{ cdt('libxau-devel') }}           # [linux]
     - {{ cdt('libxext-devel') }}          # [linux]
     - {{ cdt('libx11-devel') }}           # [linux]
+    - {{ cdt('libxcb') }}                 # [linux]
     - {{ cdt('libxrender-devel') }}       # [linux]
     - make                                # [unix]
   host:
