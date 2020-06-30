@@ -1,5 +1,5 @@
-{% set major = "1.42" %}
-{% set patch = "4" %}
+{% set major = "1.45" %}
+{% set patch = "3" %}
 {% set version = major + "." + patch %}
 
 package:
@@ -8,48 +8,48 @@ package:
 
 source:
   url: http://ftp.gnome.org/pub/GNOME/sources/pango/{{ major }}/pango-{{ version }}.tar.xz
-  sha256: 1d2b74cd63e8bd41961f2f8d952355aa0f9be6002b52c8aa7699d9f5da597c9d
+  sha256: 1f75c1ebab3d298bb0c18f420440b507a95ce4b98905274f4af80831ff7ee67d
 
 build:
-  number: 1
+  number: 0
   skip: true  # [win]
+  detect_binary_files_with_prefix: true
   run_exports:
     # excellent: https://abi-laboratory.pro/tracker/timeline/pango/
     - {{ pin_subpackage('pango') }}
+  ignore_run_exports:
+    - libcxx          # [osx]
+    - libstdcxx-ng    # [linux]
 
 requirements:
   build:
     - {{ compiler('c') }}
+    - {{ compiler('cxx') }}   # `meson setup` requires this for built-in tests
     - {{ cdt('libxau-devel') }}           # [linux]
     - {{ cdt('libxext-devel') }}          # [linux]
     - {{ cdt('libx11-devel') }}           # [linux]
     - {{ cdt('libxcb') }}                 # [linux]
     - {{ cdt('libxrender-devel') }}       # [linux]
     - make                                # [unix]
+    - meson
+    - ninja
   host:
     - cairo
     - fontconfig
     - freetype
     - fribidi
-    - glib {{ glib }}
+    - glib
     - gobject-introspection               # [not win]
-    - graphite2                           # [linux]
-    - harfbuzz
-    - icu                                 # [linux]
-    - libffi {{ libffi }}                 # [linux]
-    - libpng
-    - libuuid                             # [linux]
-    - libxml2                             # [linux]
-    - pcre                                # [linux]
-    - perl 5.*
-    - pixman                              # [linux]
+    - harfbuzz >=2.0.0
     - pkg-config
-    - xz                                  # [linux]
-    - zlib                                # [linux]
 
 test:
   commands:
+    - pango-list --help
     - pango-view --help
+    # Ensure gobject introspection data got built; refer to `build.sh` for why
+    # this is currently disabled for macOS.
+    - test -f $PREFIX/share/gir-1.0/Pango-1.0.gir   # [linux]
 
 about:
   home: http://www.pango.org/
@@ -71,3 +71,4 @@ extra:
     - ccordoba12
     - jakirkham
     - pkgw
+    - chenghlee
