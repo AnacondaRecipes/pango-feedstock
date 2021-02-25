@@ -30,6 +30,7 @@ requirements:
     - {{ cdt('libx11-devel') }}           # [linux]
     - {{ cdt('libxcb') }}                 # [linux]
     - {{ cdt('libxrender-devel') }}       # [linux]
+    - {{ cdt('xorg-x11-proto-devel') }}   # [linux and s390x]
     - make                                # [unix]
     - meson
     - ninja
