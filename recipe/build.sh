@@ -1,8 +1,17 @@
 #!/bin/bash
 
-if [[ ${target_platform} == osx-64 ]]; then
-  rm -rf ${PREFIX}/lib/libuuid*.a ${PREFIX}/lib/libuuid*.la
+if [[ "$target_platform" = osx-* ]] ; then
+    # The -dead_strip_dylibs option breaks g-ir-scanner in this package: the
+    # scanner links a test executable to find paths to dylibs, but with this
+    # option the linker strips them out. The resulting error message is
+    # "ERROR: can't resolve libraries to shared libraries: ...".
+    export LDFLAGS="$(echo $LDFLAGS |sed -e "s/-Wl,-dead_strip_dylibs//g")"
+    export LDFLAGS_LD="$(echo $LDFLAGS_LD |sed -e "s/-dead_strip_dylibs//g")"
+    rm -rf ${PREFIX}/lib/libuuid*.a ${PREFIX}/lib/libuuid*.la
 fi
+
+# get meson to find pkg-config when cross compiling
+export PKG_CONFIG=$BUILD_PREFIX/bin/pkg-config
 
 # Use a sledgehammer to avoid libtool `.la` files when linking; this must be
 # done because various packages  we depend on (e.g., libxml2) no longer have
@@ -24,13 +33,13 @@ mkdir -p builddir
 declare -a configure_extra_opts
 case "${target_platform}" in
     linux-*)
-        configure_extra_opts+=(-Dintrospection=true)
+        configure_extra_opts+=(-Dintrospection=enabled)
         ;;
-    osx-64)
+    osx-*)
         # For now, turn off gobject introspection to avoid a build-time link
         # error (missing "__cg_png_create_info_struct" symbol referenced from
         # the ImageIO Framework system library).
-        configure_extra_opts+=(-Dintrospection=false)
+        configure_extra_opts+=(-Dintrospection=enabled)
 
         # Use conda- (not Apple XCode-provided) object & library manipulation
         # tools; not doing so will cause the build to fail with "malformed
@@ -43,13 +52,17 @@ case "${target_platform}" in
         ;;
 esac
 
+export XDG_DATA_DIRS=${XDG_DATA_DIRS}:$PREFIX/share
+# ensure that the post install script is ignored
+export DESTDIR="/"
+
 meson setup \
     --prefix="${PREFIX}" \
     --libdir="${PREFIX}/lib" \
-    --wrap-mode="nofallback" \
-    --buildtype="release" \
+    --wrap-mode=nofallback \
+    --buildtype=release \
     --backend=ninja \
-    -Duse_fontconfig=true \
+    -Duse_fontconfig=true -Dfreetype=enabled -Dgtk_doc=false \
     ${configure_extra_opts[@]} \
     builddir
 

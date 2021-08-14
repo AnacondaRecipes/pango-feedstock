@@ -1,5 +1,5 @@
-{% set major = "1.45" %}
-{% set patch = "3" %}
+{% set major = "1.48" %}
+{% set patch = "7" %}
 {% set version = major + "." + patch %}
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: http://ftp.gnome.org/pub/GNOME/sources/pango/{{ major }}/pango-{{ version }}.tar.xz
-  sha256: 1f75c1ebab3d298bb0c18f420440b507a95ce4b98905274f4af80831ff7ee67d
+  sha256: 28a82f6a6cab60aa3b75a90f04197ead2d311fa8fe8b7bfdf8666e2781d506dc
 
 build:
   number: 0
@@ -34,16 +34,18 @@ requirements:
     - make                                # [unix]
     - meson
     - ninja
+    - pkg-config
+    - gobject-introspection              # [not win]
   host:
     - cairo
     - fontconfig
     - freetype
     - fribidi
     - glib
-    - gobject-introspection               # [not win]
     - harfbuzz >=2.0.0
     - pkg-config
-
+    - libpng
+    - gobject-introspection              # [not win]
 test:
   commands:
     - pango-list --help
