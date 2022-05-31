@@ -1,4 +1,4 @@
-{% set major = "1.48" %}
+{% set major = "1.50" %}
 {% set patch = "7" %}
 {% set version = major + "." + patch %}
 
@@ -8,7 +8,7 @@ package:
 
 source:
   url: http://ftp.gnome.org/pub/GNOME/sources/pango/{{ major }}/pango-{{ version }}.tar.xz
-  sha256: 28a82f6a6cab60aa3b75a90f04197ead2d311fa8fe8b7bfdf8666e2781d506dc
+  sha256: 0477f369a3d4c695df7299a6989dc004756a7f4de27eecac405c6790b7e3ad33
 
 build:
   number: 0
@@ -33,7 +33,7 @@ requirements:
     - {{ cdt('xorg-x11-proto-devel') }}   # [linux and s390x]
     - make                                # [unix]
     - meson
-    - ninja
+    - ninja-base
     - pkg-config
     - gobject-introspection              # [not win]
   host:
@@ -55,8 +55,9 @@ test:
     - test -f $PREFIX/share/gir-1.0/Pango-1.0.gir   # [linux]
 
 about:
-  home: http://www.pango.org/
+  home: https://pango.gnome.org/
   license: LGPL-2.1
+  license_family: LGPL
   license_file: COPYING
   summary: 'Text layout and rendering engine.'
   description: |
@@ -65,8 +66,9 @@ about:
     needed, though most of the work on Pango so far has been done in the
     context of the GTK+ widget toolkit. Pango forms the core of text and font
     handling for GTK+-2.x.
-  doc_url: http://www.pango.org/
-  dev_url: https://github.com/phuang/pango
+  doc_url: https://docs.gtk.org/Pango/
+  doc_source_url: https://gitlab.gnome.org/GNOME/pango/-/tree/main/docs
+  dev_url: https://gitlab.gnome.org/GNOME/pango/
 
 extra:
   recipe-maintainers:
