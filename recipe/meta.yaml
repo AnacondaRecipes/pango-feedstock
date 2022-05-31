@@ -20,6 +20,9 @@ build:
   ignore_run_exports:
     - libcxx          # [osx]
     - libstdcxx-ng    # [linux]
+    - libc            # [linux]
+    - libpng
+    - pixman
 
 requirements:
   build:
