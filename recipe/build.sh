@@ -36,9 +36,6 @@ case "${target_platform}" in
         configure_extra_opts+=(-Dintrospection=enabled)
         ;;
     osx-*)
-        # For now, turn off gobject introspection to avoid a build-time link
-        # error (missing "__cg_png_create_info_struct" symbol referenced from
-        # the ImageIO Framework system library).
         configure_extra_opts+=(-Dintrospection=enabled)
 
         # Use conda- (not Apple XCode-provided) object & library manipulation
@@ -62,7 +59,14 @@ meson setup \
     --wrap-mode=nofallback \
     --buildtype=release \
     --backend=ninja \
-    -Duse_fontconfig=true -Dfreetype=enabled -Dgtk_doc=false \
+    -Dgtk_doc=false \
+    -Dinstall-tests=false \
+    -Dfontconfig=enabled \
+    -Dsysprof=disabled \
+    -Dlibthai=disabled \
+    -Dcairo=enabled \
+    -Dxft=auto \
+    -Dfreetype=enabled \
     ${configure_extra_opts[@]} \
     builddir
 
@@ -71,8 +75,15 @@ meson configure builddir
 
 ninja -C builddir -j ${CPU_COUNT} -v
 
-# Requires third-party font (Cantarell), so turn off for now
-#ninja -C builddir -j ${CPU_COUNT} test
+case "${target_platform}" in
+    linux-*)
+        ninja -C builddir -j ${CPU_COUNT} test
+        ;;
+    osx-*)
+        # Requires third-party font (Cantarell), so turn off for now
+        #ninja -C builddir -j ${CPU_COUNT} test
+        ;;
+esac
 
 ninja -C builddir -j ${CPU_COUNT} install
 

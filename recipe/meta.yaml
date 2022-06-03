@@ -12,7 +12,6 @@ source:
 
 build:
   number: 0
-  skip: true  # [win]
   detect_binary_files_with_prefix: true
   run_exports:
     # excellent: https://abi-laboratory.pro/tracker/timeline/pango/
@@ -23,7 +22,6 @@ build:
   ignore_run_exports:
     - libcxx          # [osx]
     - libstdcxx-ng    # [linux]
-    - libpng
     - pixman
 
 requirements:
@@ -35,34 +33,51 @@ requirements:
     - {{ cdt('libx11-devel') }}           # [linux]
     - {{ cdt('libxcb') }}                 # [linux]
     - {{ cdt('libxrender-devel') }}       # [linux]
-    - {{ cdt('xorg-x11-proto-devel') }}   # [linux and s390x]
-    - make                                # [unix]
+    - {{ cdt('xorg-x11-proto-devel') }}   # [linux and (s390x or ppc64le or x86_64)]; needed for cairo support
     - meson
     - ninja-base
     - pkg-config
-    - gobject-introspection              # [not win]
+    - gobject-introspection
+    - pthread-stubs
   host:
     - cairo
-    - fontconfig
+    - fontconfig                         # [not win]
     - freetype
     - fribidi
     - glib
     - harfbuzz >=2.0.0
     - pkg-config
-    - libpng
-    - gobject-introspection              # [not win]
-test:
+    - gobject-introspection
+test:  
+  requires:
+    - pkg-config
   commands:
     - pango-list --help
     - pango-view --help
-    # Ensure gobject introspection data got built; refer to `build.sh` for why
-    # this is currently disabled for macOS.
-    - test -f $PREFIX/share/gir-1.0/Pango-1.0.gir   # [linux]
+    # Ensure gobject introspection data got built
+    - test -f $PREFIX/share/gir-1.0/Pango-1.0.gir
+    # check that libraries are installed and can be found through pkg-config
+    # (used by downstream builds)
+    {% set libs = [
+        "Pango",
+        "PangoCairo",
+        "PangoFT2",
+    ] %}
+    {% for lib in libs %}
+    - test -f $PREFIX/lib/lib{{ lib | lower }}-1.0${SHLIB_EXT}  # [unix]
+    - test -f `pkg-config --variable=libdir --dont-define-prefix {{ lib | lower }}`/lib{{ lib | lower }}-1.0${SHLIB_EXT}  # [unix]
+    - if not exist %PREFIX%\\Library\\bin\\{{ lib | lower }}-1.0-0.dll exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=exec_prefix --dont-define-prefix {{ lib | lower }}`) do if not exist "%%a/bin/{{ lib | lower }}-1.0-0.dll" exit 1  # [win]
+    - if not exist %PREFIX%\\Library\\lib\\{{ lib | lower }}-1.0.lib exit 1  # [win]
+    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=libdir --dont-define-prefix {{ lib | lower }}`) do if not exist "%%a/{{ lib | lower }}-1.0.lib" exit 1  # [win]
+    - test -f $PREFIX/lib/girepository-1.0/{{ lib }}-1.0.typelib    # [unix]
+    - if not exist %PREFIX%\Library\lib\girepository-1.0\{{ lib }}-1.0.typelib exit 1         # [win]
+    {% endfor %}
 
 about:
   home: https://pango.gnome.org/
-  license: LGPL-2.1
-  license_family: LGPL
+  license: GPL-2.0-or-later
+  license_family: GPL
   license_file: COPYING
   summary: 'Text layout and rendering engine.'
   description: |
