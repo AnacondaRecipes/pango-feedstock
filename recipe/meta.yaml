@@ -40,14 +40,22 @@ requirements:
     - gobject-introspection
     - pthread-stubs
   host:
-    - cairo
-    - fontconfig                         # [not win]
-    - freetype                           # [not win]
-    - fribidi
-    - glib
-    - harfbuzz >=2.0.0
+    - cairo >=1.12.10
+    - fontconfig >=2.13.0               # [not win]
+    - freetype                          # [not win]
+    - fribidi >=1.0.6
+    - glib >=2.62
+    - harfbuzz >=2.6.0
     - pkg-config
     - gobject-introspection
+  run:
+    - cairo >=1.12.10
+    - fontconfig >=2.13.0               # [not win]
+    - freetype                          # [not win]
+    - fribidi >=1.0.6
+    - glib >=2.62
+    - harfbuzz >=2.6.0
+
 test:  
   requires:
     - pkg-config
