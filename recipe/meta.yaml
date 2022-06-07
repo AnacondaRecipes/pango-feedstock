@@ -34,7 +34,7 @@ requirements:
     - {{ cdt('libxcb') }}                 # [linux]
     - {{ cdt('libxrender-devel') }}       # [linux]
     - {{ cdt('xorg-x11-proto-devel') }}   # [linux and (s390x or ppc64le or x86_64)]; needed for cairo support
-    - meson
+    - meson >=0.55.3
     - ninja-base
     - pkg-config
     - gobject-introspection
