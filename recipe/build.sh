@@ -1,5 +1,12 @@
 #!/bin/bash
 
+set -ex
+
+# ppc64le cdt need to be rebuilt with files in powerpc64le-conda-linux-gnu instead of powerpc64le-conda_cos7-linux-gnu. In the meantime:
+if [ "$(uname -m)" = "ppc64le" ]; then
+  cp --force --archive --update --link $BUILD_PREFIX/powerpc64le-conda_cos7-linux-gnu/. $BUILD_PREFIX/powerpc64le-conda-linux-gnu
+fi
+
 if [[ "$target_platform" = osx-* ]] ; then
     # The -dead_strip_dylibs option breaks g-ir-scanner in this package: the
     # scanner links a test executable to find paths to dylibs, but with this
@@ -10,8 +17,10 @@ if [[ "$target_platform" = osx-* ]] ; then
     rm -rf ${PREFIX}/lib/libuuid*.a ${PREFIX}/lib/libuuid*.la
 fi
 
-# get meson to find pkg-config when cross compiling
-export PKG_CONFIG=$BUILD_PREFIX/bin/pkg-config
+# necessary to ensure the gobject-introspection-1.0 pkg-config file gets found
+export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-}:${PREFIX}/lib/pkgconfig:$BUILD_PREFIX/$BUILD/sysroot/usr/lib64/pkgconfig:$BUILD_PREFIX/$BUILD/sysroot/usr/share/pkgconfig"
+export PKG_CONFIG=$PREFIX/bin/pkg-config
+declare -a meson_extra_opts
 
 # Use a sledgehammer to avoid libtool `.la` files when linking; this must be
 # done because various packages  we depend on (e.g., libxml2) no longer have
@@ -36,9 +45,6 @@ case "${target_platform}" in
         configure_extra_opts+=(-Dintrospection=enabled)
         ;;
     osx-*)
-        # For now, turn off gobject introspection to avoid a build-time link
-        # error (missing "__cg_png_create_info_struct" symbol referenced from
-        # the ImageIO Framework system library).
         configure_extra_opts+=(-Dintrospection=enabled)
 
         # Use conda- (not Apple XCode-provided) object & library manipulation
@@ -62,18 +68,36 @@ meson setup \
     --wrap-mode=nofallback \
     --buildtype=release \
     --backend=ninja \
-    -Duse_fontconfig=true -Dfreetype=enabled -Dgtk_doc=false \
+    -Dgtk_doc=false \
+    -Dinstall-tests=false \
+    -Dfontconfig=enabled \
+    -Dsysprof=disabled \
+    -Dlibthai=disabled \
+    -Dcairo=enabled \
+    -Dxft=auto \
+    -Dfreetype=enabled \
     ${configure_extra_opts[@]} \
     builddir
 
 # Print build configuration results
 meson configure builddir
 
+# Build
 ninja -C builddir -j ${CPU_COUNT} -v
 
-# Requires third-party font (Cantarell), so turn off for now
-#ninja -C builddir -j ${CPU_COUNT} test
+# Test
+case "${target_platform}" in
+    osx-*)
+        # Requires third-party font (Cantarell), so ignore test results for now
+        ninja -C builddir -j ${CPU_COUNT} test || true
+        ;;
+    linux-*)
+        # Multiple errors there, so ignore test results for now
+        ninja -C builddir -j ${CPU_COUNT} test || true
+        ;;
+esac
 
+# Install
 ninja -C builddir -j ${CPU_COUNT} install
 
 # Remove any new Libtool files we may have installed. It is intended that
