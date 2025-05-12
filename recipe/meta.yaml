@@ -11,7 +11,7 @@ source:
   sha256: 0477f369a3d4c695df7299a6989dc004756a7f4de27eecac405c6790b7e3ad33
 
 build:
-  number: 1
+  number: 2
   detect_binary_files_with_prefix: true
   run_exports:
     # excellent: https://abi-laboratory.pro/tracker/timeline/pango/
@@ -42,12 +42,12 @@ requirements:
     - harfbuzz {{ harfbuzz }}
     - pkg-config
     - gobject-introspection 1.78.1
-    - xorg-libxau
-    - xorg-libxext
-    - xorg-libx11
-    - libxcb
-    - xorg-libxrender
-    - xorg-xproto
+    - xorg-libxau  # [not win]
+    - xorg-libxext  # [not win]
+    - xorg-libx11  # [not win]
+    - libxcb  # [not win]
+    - xorg-libxrender  # [not win]
+    - xorg-xorgproto
   run:
     - cairo >=1.12.10
     - fontconfig >=2.13.0               # [not win]
