@@ -28,12 +28,6 @@ requirements:
   build:
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}   # `meson setup` requires this for built-in tests
-    - {{ cdt('libxau-devel') }}           # [linux]
-    - {{ cdt('libxext-devel') }}          # [linux]
-    - {{ cdt('libx11-devel') }}           # [linux]
-    - {{ cdt('libxcb') }}                 # [linux]
-    - {{ cdt('libxrender-devel') }}       # [linux]
-    - {{ cdt('xorg-x11-proto-devel') }}   # [linux and (s390x or ppc64le or x86_64)]; needed for cairo support
     - meson >=0.55.3
     - ninja-base
     - pkg-config
@@ -48,6 +42,12 @@ requirements:
     - harfbuzz {{ harfbuzz }}
     - pkg-config
     - gobject-introspection 1.78.1
+    - xorg-libxau
+    - xorg-libxext
+    - xorg-libx11
+    - libxcb
+    - xorg-libxrender
+    - xorg-xproto
   run:
     - cairo >=1.12.10
     - fontconfig >=2.13.0               # [not win]
