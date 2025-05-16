@@ -42,12 +42,7 @@ requirements:
     - harfbuzz {{ harfbuzz }}
     - pkg-config
     - gobject-introspection 1.78.1
-    - xorg-libxau  # [not win]
-    - xorg-libxext  # [not win]
-    - xorg-libx11  # [not win]
-    - libxcb  # [not win]
-    - xorg-libxrender  # [not win]
-    - xorg-xorgproto
+    - xorg-xorgproto  # [linux]
   run:
     - cairo >=1.12.10
     - fontconfig >=2.13.0               # [not win]
