@@ -34,21 +34,15 @@ requirements:
     - gobject-introspection
     - pthread-stubs
   host:
+    # xorg/xcb/x11 packages comes from cairo.
     - cairo {{ cairo }}
     - fontconfig {{ fontconfig }}               # [not win]
     - freetype {{ freetype }}                   # [not win]
-    - fribidi 1
+    - fribidi {{ fribidi }}
     - glib {{ glib }}
+    - gobject-introspection 1.78.1
     - harfbuzz {{ harfbuzz }}
     - pkg-config
-    - gobject-introspection 1.78.1
-    # xorg/xcb packages are needed for cairo support.
-    - libxcb  # [linux]
-    - xorg-libx11  # [linux]
-    - xorg-libxau  # [linux]
-    - xorg-libxext  # [linux]
-    - xorg-libxrender  # [linux]
-    - xorg-xorgproto  # [linux]
   run:
     - cairo >=1.12.10
     - fontconfig >=2.13.0               # [not win]
@@ -72,9 +66,7 @@ test:
     {% set libs = libs + ["PangoWin32"] %} # [win]
     {% for lib in libs %}
     - test -f $PREFIX/lib/lib{{ lib | lower }}-1.0${SHLIB_EXT}  # [unix]
-    - test -f `pkg-config --variable=libdir --dont-define-prefix {{ lib | lower }}`/lib{{ lib | lower }}-1.0${SHLIB_EXT}  # [unix]
-    - if not exist %PREFIX%\\Library\\bin\\{{ lib | lower }}-1.0-0.dll exit 1  # [win]
-    - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=exec_prefix --dont-define-prefix {{ lib | lower }}`) do if not exist "%%a/bin/{{ lib | lower }}-1.0-0.dll" exit 1  # [win]
+    - test -f `pkg-config --variable=libdir --dont-define-prefix {{ lib | lower }}`) do if not exist "%%a/bin/{{ lib | lower }}-1.0-0.dll" exit 1  # [win]
     - if not exist %PREFIX%\\Library\\lib\\{{ lib | lower }}-1.0.lib exit 1  # [win]
     - for /f "usebackq tokens=*" %%a in (`pkg-config --variable=libdir --dont-define-prefix {{ lib | lower }}`) do if not exist "%%a/{{ lib | lower }}-1.0.lib" exit 1  # [win]
     - test -f $PREFIX/lib/girepository-1.0/{{ lib }}-1.0.typelib    # [unix]
