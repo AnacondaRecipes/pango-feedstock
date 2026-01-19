@@ -1,6 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -xeo pipefail
+
+# Replace host g-ir-scanner with wrapper that runs build scanner with build python
+mv -v "${PREFIX}/bin/g-ir-scanner" "${PREFIX}/bin/g-ir-scanner.real"
+
+cat > "${PREFIX}/bin/g-ir-scanner" <<EOF
+#!/usr/bin/env bash
+exec "${BUILD_PREFIX}/bin/python" "${BUILD_PREFIX}/bin/g-ir-scanner" "\$@"
+EOF
+chmod +x "${PREFIX}/bin/g-ir-scanner"
 
 if [[ "$target_platform" = osx-* ]] ; then
     # The -dead_strip_dylibs option breaks g-ir-scanner in this package: the
@@ -34,6 +43,8 @@ meson_config_args=(
 export DESTDIR="/"
 
 meson setup builddir \
+    --prefix="$PREFIX" \
+    --backend=ninja \
     ${MESON_ARGS} \
     "${meson_config_args[@]}" \
     --wrap-mode=nofallback
