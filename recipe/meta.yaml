@@ -13,8 +13,6 @@ source:
 build:
   number: 0
   detect_binary_files_with_prefix: true
-  ignore_run_exports_from:
-    - {{ compiler('cxx') }}
   run_exports:
     - {{ pin_subpackage('pango', max_pin='x.x') }}
 
@@ -33,7 +31,7 @@ requirements:
     - fribidi {{ fribidi }}
     - harfbuzz {{ harfbuzz }}
     # font backends
-    - fontconfig {{ fontconfig }}  # [linux]
+    - fontconfig {{ fontconfig }}  # [unix]
     - freetype {{ freetype }}
     # cairo backend (required if you ship PangoCairo)
     - cairo {{ cairo }}
