@@ -36,6 +36,8 @@ meson_config_args=(
     -Dintrospection=enabled
     -Dfontconfig=enabled
     -Dfreetype=enabled
+    -Dsysprof=disabled
+    -Dlibthai=disabled
     -Dgtk_doc=false
 )
 
