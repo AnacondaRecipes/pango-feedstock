@@ -31,7 +31,7 @@ requirements:
     - fribidi {{ fribidi }}
     - harfbuzz {{ harfbuzz }}
     # font backends
-    - fontconfig {{ fontconfig }}  # [unix]
+    - fontconfig {{ fontconfig }}
     - freetype {{ freetype }}
     # cairo backend (required if you ship PangoCairo)
     - cairo {{ cairo }}
