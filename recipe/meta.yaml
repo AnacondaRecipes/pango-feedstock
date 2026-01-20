@@ -14,7 +14,7 @@ build:
   number: 0
   detect_binary_files_with_prefix: true
   run_exports:
-    - {{ pin_subpackage('pango', max_pin='x.x') }}
+    - {{ pin_subpackage('pango', max_pin='x') }}
 
 requirements:
   build:
@@ -65,7 +65,7 @@ test:
 
 about:
   home: https://www.gtk.org/docs/architecture/pango
-  license: LGPL-2.1-or-later
+  license: LGPL-2.0-or-later
   license_file: COPYING
   summary: Text layout and rendering engine.
   description: |
