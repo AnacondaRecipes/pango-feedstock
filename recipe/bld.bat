@@ -27,6 +27,7 @@ set ^"MESON_OPTIONS=^
   -Dintrospection=enabled ^
   -Dfontconfig=enabled ^
   -Dfreetype=enabled ^
+  -Dcairo=enabled ^
   -Dsysprof=disabled ^
   -Dlibthai=disabled ^
   -Ddocumentation=false ^
