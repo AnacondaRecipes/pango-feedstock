@@ -1,11 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -ex
+set -xeo pipefail
 
-# ppc64le cdt need to be rebuilt with files in powerpc64le-conda-linux-gnu instead of powerpc64le-conda_cos7-linux-gnu. In the meantime:
-if [ "$(uname -m)" = "ppc64le" ]; then
-  cp --force --archive --update --link $BUILD_PREFIX/powerpc64le-conda_cos7-linux-gnu/. $BUILD_PREFIX/powerpc64le-conda-linux-gnu
-fi
+# Replace host g-ir-scanner with wrapper that runs build scanner with build python
+mv -v "${PREFIX}/bin/g-ir-scanner" "${PREFIX}/bin/g-ir-scanner.real"
+
+cat > "${PREFIX}/bin/g-ir-scanner" <<EOF
+#!/usr/bin/env bash
+exec "${BUILD_PREFIX}/bin/python" "${BUILD_PREFIX}/bin/g-ir-scanner" "\$@"
+EOF
+chmod +x "${PREFIX}/bin/g-ir-scanner"
 
 if [[ "$target_platform" = osx-* ]] ; then
     # The -dead_strip_dylibs option breaks g-ir-scanner in this package: the
@@ -14,92 +18,38 @@ if [[ "$target_platform" = osx-* ]] ; then
     # "ERROR: can't resolve libraries to shared libraries: ...".
     export LDFLAGS="$(echo $LDFLAGS |sed -e "s/-Wl,-dead_strip_dylibs//g")"
     export LDFLAGS_LD="$(echo $LDFLAGS_LD |sed -e "s/-dead_strip_dylibs//g")"
-    rm -rf ${PREFIX}/lib/libuuid*.a ${PREFIX}/lib/libuuid*.la
 fi
 
-# necessary to ensure the gobject-introspection-1.0 pkg-config file gets found
-export PKG_CONFIG_PATH="${PKG_CONFIG_PATH:-}:${PREFIX}/lib/pkgconfig:$BUILD_PREFIX/$BUILD/sysroot/usr/lib64/pkgconfig:$BUILD_PREFIX/$BUILD/sysroot/usr/share/pkgconfig"
-export PKG_CONFIG=$PREFIX/bin/pkg-config
-declare -a meson_extra_opts
+# get meson to find pkg-config when cross compiling
+export PKG_CONFIG=$BUILD_PREFIX/bin/pkg-config
 
-# Use a sledgehammer to avoid libtool `.la` files when linking; this must be
-# done because various packages  we depend on (e.g., libxml2) no longer have
-# libtool `.la` files within them.
-find "${PREFIX}/lib" -type f -name "*.la" -delete
-
-# The "fribidi" recipe moves shared libraries out of `lib64` into `lib`, but
-# some builds do not properly account for this in their pkg-config files.
-sed -i.bak "s:/lib64:/lib:" "${PREFIX}/lib/pkgconfig/fribidi.pc"
-
-# We must avoid very long shebangs here.
-echo '#!/usr/bin/env bash' > g-ir-scanner
-echo "${PREFIX}/bin/python ${PREFIX}/bin/g-ir-scanner \$*" >> g-ir-scanner
-chmod +x ./g-ir-scanner
-export PATH=${PWD}:${PATH}
-
-mkdir -p builddir
-
-declare -a configure_extra_opts
-case "${target_platform}" in
-    linux-*)
-        configure_extra_opts+=(-Dintrospection=enabled)
-        ;;
-    osx-*)
-        configure_extra_opts+=(-Dintrospection=enabled)
-
-        # Use conda- (not Apple XCode-provided) object & library manipulation
-        # tools; not doing so will cause the build to fail with "malformed
-        # object" & "load command size is zero" errors when building on systems
-        # with older releases of Xcode (e.g., Xcode 7 on OS X 10.10).
-        ln -s "${INSTALL_NAME_TOOL}" "${BUILD_PREFIX}/bin/install_name_tool"
-        ln -s "${NM}" "${BUILD_PREFIX}/bin/nm"
-        ln -s "${OTOOL}" "${BUILD_PREFIX}/bin/otool"
-        hash -r
-        ;;
-esac
+# need to find gobject-introspection-1.0 as a "native" (build) pkg-config dep
+# meson uses PKG_CONFIG_PATH to search when not cross-compiling and
+# PKG_CONFIG_PATH_FOR_BUILD when cross-compiling,
+# so add the build prefix pkgconfig path to the appropriate variables
+export PKG_CONFIG_PATH_FOR_BUILD=$BUILD_PREFIX/lib/pkgconfig
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$BUILD_PREFIX/lib/pkgconfig
 
 export XDG_DATA_DIRS=${XDG_DATA_DIRS}:$PREFIX/share
+
+meson_config_args=(
+    -Dintrospection=enabled
+    -Dfontconfig=enabled
+    -Dfreetype=enabled
+    -Dcairo=enabled
+    -Dsysprof=disabled
+    -Dlibthai=disabled
+    -Dgtk_doc=false
+)
+
 # ensure that the post install script is ignored
 export DESTDIR="/"
 
-meson setup \
-    --prefix="${PREFIX}" \
-    --libdir="${PREFIX}/lib" \
-    --wrap-mode=nofallback \
-    --buildtype=release \
+meson setup builddir \
+    --prefix="$PREFIX" \
     --backend=ninja \
-    -Dgtk_doc=false \
-    -Dinstall-tests=false \
-    -Dfontconfig=enabled \
-    -Dsysprof=disabled \
-    -Dlibthai=disabled \
-    -Dcairo=enabled \
-    -Dxft=auto \
-    -Dfreetype=enabled \
-    ${configure_extra_opts[@]} \
-    builddir
-
-# Print build configuration results
-meson configure builddir
-
-# Build
-ninja -C builddir -j ${CPU_COUNT} -v
-
-# Test
-case "${target_platform}" in
-    osx-*)
-        # Requires third-party font (Cantarell), so ignore test results for now
-        ninja -C builddir -j ${CPU_COUNT} test || true
-        ;;
-    linux-*)
-        # Multiple errors there, so ignore test results for now
-        ninja -C builddir -j ${CPU_COUNT} test || true
-        ;;
-esac
-
-# Install
-ninja -C builddir -j ${CPU_COUNT} install
-
-# Remove any new Libtool files we may have installed. It is intended that
-# conda-build will eventually do this automatically.
-find "${PREFIX}/lib" -name "*.la" -delete
+    ${MESON_ARGS} \
+    "${meson_config_args[@]}" \
+    --wrap-mode=nofallback
+ninja -v -C builddir -j ${CPU_COUNT}
+ninja -C builddir install -j ${CPU_COUNT}
