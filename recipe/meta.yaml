@@ -39,7 +39,7 @@ requirements:
     # introspection artifacts on target
     - gobject-introspection 1.*
     # misc/proto/header deps often needed in linux build envs
-    - xorg-xorgproto  # [linux]
+    - xorg-xorgproto {{ xorg_xorgproto }}  # [linux]
     - zlib {{ zlib }}
 
 test:
