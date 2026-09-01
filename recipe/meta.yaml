@@ -34,7 +34,7 @@ requirements:
     - fontconfig {{ fontconfig }}
     - freetype {{ freetype }}
     # cairo backend (required if you ship PangoCairo)
-    - cairo {{ cairo }}
+    - cairo >=1.18.0
     - libpng {{ libpng }}
     # introspection artifacts on target
     - gobject-introspection 1.*
