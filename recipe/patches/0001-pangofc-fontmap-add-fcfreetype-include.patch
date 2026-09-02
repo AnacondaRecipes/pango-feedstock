@@ -1,0 +1,8 @@
+diff --git a/pango/pangofc-fontmap.c b/pango/pangofc-fontmap.c
+index 0000000..0000000 100644
+--- a/pango/pangofc-fontmap.c
++++ b/pango/pangofc-fontmap.c
+@@ -48,2 +48,3 @@
+ #include "pango-trace-private.h"
+ #include <hb-ft.h>
++#include <fontconfig/fcfreetype.h>
