@@ -28,9 +28,38 @@ export PKG_CONFIG=$BUILD_PREFIX/bin/pkg-config
 # PKG_CONFIG_PATH_FOR_BUILD when cross-compiling,
 # so add the build prefix pkgconfig path to the appropriate variables
 export PKG_CONFIG_PATH_FOR_BUILD=$BUILD_PREFIX/lib/pkgconfig
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$BUILD_PREFIX/lib/pkgconfig
+# export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$BUILD_PREFIX/lib/pkgconfig
 
 export XDG_DATA_DIRS=${XDG_DATA_DIRS}:$PREFIX/share
+
+echo "===== DEBUG: checking for duplicate/conflicting fontconfig ====="
+echo "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}"
+echo "PKG_CONFIG_PATH_FOR_BUILD=${PKG_CONFIG_PATH_FOR_BUILD}"
+
+echo "--- fontconfig.pc locations ---"
+find "${PREFIX}" -name "fontconfig.pc" 2>/dev/null
+find "${BUILD_PREFIX}" -name "fontconfig.pc" 2>/dev/null
+
+echo "--- fcfreetype.h locations ---"
+find "${PREFIX}" -name "fcfreetype.h" 2>/dev/null
+find "${BUILD_PREFIX}" -name "fcfreetype.h" 2>/dev/null
+
+echo "--- Version reported by each fontconfig.pc found ---"
+for pc in $(find "${PREFIX}" "${BUILD_PREFIX}" -name "fontconfig.pc" 2>/dev/null); do
+    echo "File: $pc"
+    grep -i "^Version" "$pc" || echo "  (no Version line found)"
+done
+
+echo "--- FcFreeTypeQueryAll declared in which headers? ---"
+for h in $(find "${PREFIX}" "${BUILD_PREFIX}" -name "fcfreetype.h" 2>/dev/null); do
+    echo "File: $h"
+    grep -n "FcFreeTypeQueryAll" "$h" || echo "  NOT FOUND in this header"
+done
+
+echo "--- What pkg-config actually resolves right now ---"
+$PKG_CONFIG --modversion fontconfig || echo "pkg-config could not find fontconfig"
+$PKG_CONFIG --cflags fontconfig || echo "pkg-config --cflags failed"
+echo "===== END DEBUG ====="
 
 meson_config_args=(
     -Dintrospection=enabled
