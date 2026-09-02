@@ -25,6 +25,7 @@ requirements:
     - {{ stdlib("c") }}
     - {{ compiler('cxx') }}
     - gobject-introspection
+    - fontconfig {{ fontconfig }}
   host:
     # core (required)
     - glib {{ glib }}
