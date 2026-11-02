@@ -39,7 +39,7 @@ meson_config_args=(
     -Dcairo=enabled
     -Dsysprof=disabled
     -Dlibthai=disabled
-    -Dgtk_doc=false
+    -Ddocumentation=false
 )
 
 # ensure that the post install script is ignored
