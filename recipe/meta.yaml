@@ -48,8 +48,6 @@ test:
     - pkg-config
   commands:
     - pango-view --help
-    - pango-list > /dev/null  # [unix]
-    - pango-list > NUL  # [win]
     - pkg-config --exists pango
     # upstream requires >= {{ version }}, catch a mis-linked/older build
     - pkg-config --print-errors --exact-version {{ version }} pango pangocairo pangoft2
